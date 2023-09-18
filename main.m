@@ -1,6 +1,16 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % The following script executes a VLM to study the aerodynamic properties
 % of a finite swept wing.
+% 
+% Assignment for the course TMMV01 Aerodynamics at Linköping University,
+% HT2023.
+% 
+% Group members:
+%   Jan Zoellner (janzo813)
+%   Niklas Gierse (nikgi434)
+%
+% Chosen assignment:
+%   B747 - 12 deg dyhedral
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clc
