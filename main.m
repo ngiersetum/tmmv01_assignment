@@ -51,7 +51,7 @@ rho   = 1.225;    % Air Density (kg/m3)
 
 Ale = deg2rad(37.5);            % Leading edge sweep angle (rad)
 phi = deg2rad(12) + (1e-10);  % Dihedral angle (rad)
-s   = 29.8;            % SEMI-span (m)
+s   = 32;            % SEMI-span (m)
 cr  = 14.84;            % Root chord (m)
 ct  = 3.70 + (1e-10);  % Tip chord (m)
 S   = 510.96;            % Wing surface (m^2)
