@@ -10,7 +10,9 @@
 %   Niklas Gierse (nikgi434)
 %
 % Chosen assignment:
-%   B747 - 12 deg dyhedral
+%   B747 - 12 deg dihedral
+% 
+% Geometrical data of the wing taken from the -400 model
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 clc
@@ -47,13 +49,13 @@ rho   = 1.225;    % Air Density (kg/m3)
 %% Wing Geometry
 % ----------------------------------------------------------------------- %
 
-Ale = ...;            % Leading edge sweep angle (rad)
-phi = ... + (1e-10);  % Dihedral angle (rad)
-s   = ...;            % SEMI-span (m)
-cr  = ...;            % Root chord (m)
-ct  = ... + (1e-10);  % Tip chord (m)
-S   = ...;            % Wing surface (m)
-AR  = ...;            % Wing Aspect Ratio (-)
+Ale = deg2rad(37.5);            % Leading edge sweep angle (rad)
+phi = deg2rad(12) + (1e-10);  % Dihedral angle (rad)
+s   = 29.8;            % SEMI-span (m)
+cr  = 14.84;            % Root chord (m)
+ct  = 3.70 + (1e-10);  % Tip chord (m)
+S   = 510.96;            % Wing surface (m^2)
+AR  = 6.97;            % Wing Aspect Ratio (-)
 
 % IMPORTANT: (1e-10) added at Dihedral Angle and Tip Chord in order to
 % avoid numerical issues.
@@ -85,7 +87,7 @@ for j = ...:...
 end
 
 % Time enlapsed in the geometric loop
-T_geom_loop=toc; % (s)  
+T_geom_loop=toc; % (s)
 
 %% MAIN LOOP
 % ----------------------------------------------------------------------- %
