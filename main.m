@@ -121,54 +121,56 @@ zlim([0 40])
 h = waitbar(0,'Initializing Solver...');
 
 % Reset Panel Counter
-Panel=0;
+panel=0;
 
 tic
 
-for i = 0:10   
-
-    for j = 0:20 % Solve only the Starboard wing due to symmetry
+for i = 1:npx
+    for j = 1:npy % Solve only the Starboard wing due to symmetry
         
         % Panel Counter
-        Panel=Panel+1;
+        panel=panel+1;
         
         % Progress
-        waitbar(Panel/(npx*npy),h,sprintf('Calculating %4.2f %%...',Panel/(npx*npy)*100))
+        waitbar(panel/(npx*npy),h,sprintf('Calculating %4.2f %%...',panel/(npx*npy)*100))
         
         % Control point where the downwash from all the vortex is calculated
-        xm = 0;
-        ym = 0;
-        zm = 0;
+        xm = panels(i,j).xmn;
+        ym = panels(i,j).ymn;
+        zm = panels(i,j).zmn;
      
         %% Starboard/Right Wing Vortex
         
         % Reset Vortex Counter
-        Vortex=0; 
+        vortex=0; 
         
-        for ii = 0:10 
-            for jj = 0:20 % Right wing loop
+        for ii = 1:npx 
+            for jj = 1:npy % Right wing loop
                 
                 % Vortex Counter
-                Vortex=Vortex+1;
+                vortex=vortex+1;
                 
-        % Induced Velocities function          
-               
+                vCoeff = zeros(1,3);
+                [vCoeff(1), vCoeff(2), vCoeff(3)] = calculateInducedVelocity(xm, ym, zm, panels(ii,jj).x1n, panels(ii,jj).y1n, panels(ii,jj).z1n, panels(ii,jj).x2n, panels(ii,jj).y2n, panels(ii,jj).z2n);
+                vCoeff = transpose(vCoeff);
             end
         end
         
         %% Port/Left Wing Vortex
         
         % Reset Vortex Counter
-        Vortex=0; 
+        vortex=0; 
         
         for ii = 0:10
             for jj = 0:20 % Left wing loop 
                 
                 % Vortex Counter
-                Vortex=Vortex+1;
+                vortex=vortex+1;
                 
-         % Induced Velocities function       
-                
+                % Induced Velocities function       
+                vCoeff = zeros(1,3);
+                [vCoeff(1), vCoeff(2), vCoeff(3)] = calculateInducedVelocity(xm, ym, zm, panels(ii,jj).x1n, -panels(ii,jj).y1n, panels(ii,jj).z1n, panels(ii,jj).x2n, -panels(ii,jj).y2n, panels(ii,jj).z2n);
+                vCoeff = transpose(vCoeff);
             end
         end
            
