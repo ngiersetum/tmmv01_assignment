@@ -24,7 +24,7 @@ scrsz = get(0,'ScreenSize');
 scW=scrsz(3); % Screen Width (px)
 scH=scrsz(4); % Screen Height (px)
 % figure('Name','NameFigure','Position',[x0 y0 width height])
-wingFig = figure('Name','Wing','Position',[1 scH/4 scW/2 scH/2.5]);
+wingFig = figure('Name','Wing','Position',[1 scH/4 scW/2 scH/1.75]);
 % distFig = figure('Name','Distributions','Position',[scW/2 scH/4 scW/2 scH/2.5]);
 
 % Plots configuration
@@ -260,12 +260,11 @@ for j = 1:npy
     end
 end
 
-%% Plot Vortex strengths on the wing
-
+% Colorbar for the vortex strengths on the wing
 c = colorbar;
+colormap winter
 c.Location = 'southoutside';
-c.Label.String = 'Horseshoe vortex strengths [m^2/s]';
-% fill3(grid(:,1), grid(:,2), grid(:,3), 'b', 'FaceAlpha', 0.75)
+c.Label.String = 'Horseshoe vortex strength [m^2/s]';
 
 %% Lift Coefficient - WE ARE HERE
 
