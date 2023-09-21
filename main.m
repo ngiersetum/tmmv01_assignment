@@ -219,20 +219,16 @@ rhs = rhs .* (-Uinf*sin(alpha)*cos(phi));
 
 %% Solve the Vortex Strengths
 
-GAMMAS = K(1)/rhs;
+gammas = linsolve(Kmat, rhs);
 
 % Order Vortex Strengths in a matrix (for the Startboard wing)
-for j = 0:10 
-
-    for i = 0:20    
-       
-       V_strength(i,j) = 0
-           
+for j = 1:npy
+    for i = 1:npx
+       strengths(i,j) = gammas(npx*(j-1) + i);
     end
-         
 end
 
-%% Lift Coefficient
+%% Lift Coefficient - WE ARE HERE
 
 CL  = 0;
 
