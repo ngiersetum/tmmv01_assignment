@@ -209,8 +209,7 @@ normalV = normalV .* sin(phi);
 normalW = normalW .* cos(phi);
 
 K = dot([Um; Vm; Wm], [normalU; normalV; normalW]);
-% Kmat = K(1,:,:);
-% Kmat = tenmat(K, 2, 3);
+Kmat = reshape(K, (npx*npy), []);  % make npx*npy x npx*npy matrix out of 1xNxM tensor
 
 %% Define right hand side
 
