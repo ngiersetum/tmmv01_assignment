@@ -152,7 +152,9 @@ for i = 1:npx
                 
                 vCoeff = zeros(1,3);
                 [vCoeff(1), vCoeff(2), vCoeff(3)] = calculateInducedVelocity(xm, ym, zm, panels(ii,jj).x1n, panels(ii,jj).y1n, panels(ii,jj).z1n, panels(ii,jj).x2n, panels(ii,jj).y2n, panels(ii,jj).z2n);
-                vCoeff = transpose(vCoeff);
+                coefficientsRight(panel, vortex).u = vCoeff(1);
+                coefficientsRight(panel, vortex).v = vCoeff(2);
+                coefficientsRight(panel, vortex).w = vCoeff(3);
             end
         end
         
@@ -161,8 +163,8 @@ for i = 1:npx
         % Reset Vortex Counter
         vortex=0; 
         
-        for ii = 0:10
-            for jj = 0:20 % Left wing loop 
+        for ii = 1:npx
+            for jj = 1:npy % Left wing loop 
                 
                 % Vortex Counter
                 vortex=vortex+1;
@@ -170,7 +172,9 @@ for i = 1:npx
                 % Induced Velocities function       
                 vCoeff = zeros(1,3);
                 [vCoeff(1), vCoeff(2), vCoeff(3)] = calculateInducedVelocity(xm, ym, zm, panels(ii,jj).x1n, -panels(ii,jj).y1n, panels(ii,jj).z1n, panels(ii,jj).x2n, -panels(ii,jj).y2n, panels(ii,jj).z2n);
-                vCoeff = transpose(vCoeff);
+                coefficientsLeft(panel, vortex).u = vCoeff(1);
+                coefficientsLeft(panel, vortex).v = vCoeff(2);
+                coefficientsLeft(panel, vortex).w = vCoeff(3);
             end
         end
            
@@ -186,16 +190,37 @@ close(h)
 
 %% Combine contributions from the Port and Startboard wings
 
-Um = 0;
-Vm = 0;
-Wm = 0;
+vMatRight = cell2mat(struct2cell(coefficientsRight));
+vMatLeft = cell2mat(struct2cell(coefficientsLeft));
 
-%% Assemble coefficients Matrix 
-K = 0;
+Um = vMatRight(1,:,:) + vMatLeft(1,:,:);
+Vm = vMatRight(2,:,:) + vMatLeft(2,:,:);
+Wm = vMatRight(3,:,:) + vMatLeft(3,:,:);
+
+%% Assemble coefficients Matrix
+
+% normalV = [0; sin(phi); cos(phi)];
+normalU = ones(size(Um));
+normalV = ones(size(Vm));
+normalW = ones(size(Wm));
+
+normalU = normalU .* 0;
+normalV = normalV .* sin(phi);
+normalW = normalW .* cos(phi);
+
+K = dot([Um; Vm; Wm], [normalU; normalV; normalW]);
+% Kmat = K(1,:,:);
+% Kmat = tenmat(K, 2, 3);
+
+%% Define right hand side
+
+rhs = ones(npx*npy, 1);
+
+rhs = rhs .* (-Uinf*sin(alpha)*cos(phi));
 
 %% Solve the Vortex Strengths
 
-GAMMAS = 0;
+GAMMAS = K(1)/rhs;
 
 % Order Vortex Strengths in a matrix (for the Startboard wing)
 for j = 0:10 
