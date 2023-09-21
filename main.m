@@ -15,7 +15,6 @@
 % Geometrical data of the wing taken from the -400 model
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-clc
 clear 
 close all
 
@@ -26,7 +25,7 @@ scW=scrsz(3); % Screen Width (px)
 scH=scrsz(4); % Screen Height (px)
 % figure('Name','NameFigure','Position',[x0 y0 width height])
 wingFig = figure('Name','Wing','Position',[1 scH/4 scW/2 scH/2.5]);
-distFig = figure('Name','Distributions','Position',[scW/2 scH/4 scW/2 scH/2.5]);
+% distFig = figure('Name','Distributions','Position',[scW/2 scH/4 scW/2 scH/2.5]);
 
 % Plots configuration
 font=15;  % font size
@@ -134,7 +133,6 @@ plot3(grid(:,1), -grid(:,2), grid(:,3), 'b');
 outline = [0 0 0; s*tan(Ale) s s*tan(phi); s*tan(Ale)+cTip s s*tan(phi); cRoot 0 0; 0 0 0];
 plot3(outline(:,1), outline(:,2), outline(:,3), 'k');
 plot3(outline(:,1), -outline(:,2), outline(:,3), 'k');
-
 
 xlim([-s+15 s+25])
 ylim([-s-5 s+5])
@@ -248,12 +246,26 @@ rhs = rhs .* (-Uinf*sin(alpha)*cos(phi));
 
 gammas = linsolve(Kmat, rhs);
 
+figure(wingFig)
+
 % Order Vortex Strengths in a matrix (for the Startboard wing)
 for j = 1:npy
     for i = 1:npx
        strengths(i,j) = gammas(npx*(j-1) + i);
+
+       % Plot vortex strength on the wing surface
+       gi = npx*(j-1) + i;
+       fill3(grid((2+(gi-1)*5):(5+(gi-1)*5),1), grid((2+(gi-1)*5):(5+(gi-1)*5),2), grid((2+(gi-1)*5):(5+(gi-1)*5),3), strengths(i,j));
+       fill3(grid((2+(gi-1)*5):(5+(gi-1)*5),1), -grid((2+(gi-1)*5):(5+(gi-1)*5),2), grid((2+(gi-1)*5):(5+(gi-1)*5),3), strengths(i,j));
     end
 end
+
+%% Plot Vortex strengths on the wing
+
+c = colorbar;
+c.Location = 'southoutside';
+c.Label.String = 'Horseshoe vortex strengths [m^2/s]';
+% fill3(grid(:,1), grid(:,2), grid(:,3), 'b', 'FaceAlpha', 0.75)
 
 %% Lift Coefficient - WE ARE HERE
 
