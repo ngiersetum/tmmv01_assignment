@@ -25,8 +25,8 @@ scrsz = get(0,'ScreenSize');
 scW=scrsz(3); % Screen Width (px)
 scH=scrsz(4); % Screen Height (px)
 % figure('Name','NameFigure','Position',[x0 y0 width height])
-figure('Name','Wing','Position',[1 scH/4 scW/2 scH/2.5])
-figure('Name','Distributions','Position',[scW/2 scH/4 scW/2 scH/2.5])
+wingFig = figure('Name','Wing','Position',[1 scH/4 scW/2 scH/2.5]);
+distFig = figure('Name','Distributions','Position',[scW/2 scH/4 scW/2 scH/2.5]);
 
 % Plots configuration
 font=15;  % font size
@@ -50,32 +50,36 @@ rho   = 1.225;    % Air Density (kg/m3)
 % https://www.wikipedia.org/wiki/Boeing_747#747-400
 % ----------------------------------------------------------------------- %
 
-Ale = deg2rad(37);            % Leading edge sweep angle (rad)
-phi = deg2rad(12) + (1e-10);  % Dihedral angle (rad)
-s   = 32;            % SEMI-span (m)
-cRoot  = 14.84;            % Root chord (m)
-cTip  = 3.70 + (1e-10);  % Tip chord (m)
-S   = 541.2;            % Wing surface (m^2)
-AR  = 7.7;            % Wing Aspect Ratio (-)
+Ale = deg2rad(37);              % Leading edge sweep angle (rad)
+phi = deg2rad(12) + (1e-10);    % Dihedral angle (rad)
+s   = 32;                       % SEMI-span (m)
+cRoot  = 14.84;                 % Root chord (m)
+cTip  = 3.70 + (1e-10);         % Tip chord (m)
+S   = 541.2;                    % Wing surface (m^2)
+AR  = 7.7;                      % Wing Aspect Ratio (-)
 
 % IMPORTANT: (1e-10) added at Dihedral Angle and Tip Chord in order to
 % avoid numerical issues.
 
 %% Panels´ Geometrical Properties
 % ----------------------------------------------------------------------- %
+grid = zeros(1,3); % initialize vector of grid points for plotting the wing
 
 tic
 for j = 1:npy
-    % Local y coordinate of each slice
+
+    % Width of one slice
     dy = s/npy;
+
+    % Local y coordinate of each slice (0 on inner edge)
     yA = dy .* (j-1);
     
-    % Local chord at the coordinate y
+    % Local chord at the coordinate y at both edges and the middle
     cA = cRoot - (cRoot-cTip).*(yA/s);
     cB = cRoot - (cRoot-cTip).*((yA+dy)/s);
     cC = (cA+cB)/2;
     
-    % Local dx
+    % Local dx (length of one slice) at both edges and the middle
     dxA = cA/npx;
     dxB = cB/npx;
     dxC = cC/npx;
@@ -96,23 +100,46 @@ for j = 1:npy
         panels(i,j).ymn = yA+(dy/2);
         panels(i,j).zmn = (yA+(dy/2))*tan(phi);
 
+        % Save points for plotting the wing grid
+        grid = [grid; yA*tan(Ale) + dxA*(i-1), yA, yA*tan(phi); 
+            (yA+dy)*tan(Ale) + dxB*(i-1), yA+dy, (yA+dy)*tan(phi); 
+            (yA+dy)*tan(Ale) + dxB*i, yA+dy, (yA+dy)*tan(phi); 
+            yA*tan(Ale) + dxA*i, yA, yA*tan(phi); 
+            nan, nan, nan]; % add NaN at the end to avoid connecting lines in the plot
     end
 end
 
 % Time enlapsed in the geometric loop
 T_geom_loop=toc; % (s)
 
-%% Plot the wing points
+%% Plot the wing
+figure(wingFig)
+
 mat = cell2mat(struct2cell(panels));
 
-figure
-scatter3(mat(1,:), mat(2,:), mat(3,:), "r");
+% Vortex vertices and control points
+scatter3(mat(1,:), mat(2,:), mat(3,:), 'r', 'filled');
 hold on
-scatter3(mat(4,:), mat(5,:), mat(6,:), "r");
-scatter3(mat(7,:), mat(8,:), mat(9,:), "g");
-xlim([0 40])
-ylim([0 40])
-zlim([0 40])
+scatter3(mat(1,:), -mat(2,:), mat(3,:), 'r', 'filled');
+scatter3(mat(4,:), mat(5,:), mat(6,:), 'r', 'filled');
+scatter3(mat(4,:), -mat(5,:), mat(6,:), 'r', 'filled');
+scatter3(mat(7,:), mat(8,:), mat(9,:), 'g', 'filled');
+scatter3(mat(7,:), -mat(8,:), mat(9,:), 'g', 'filled');
+
+% Panel grid
+plot3(grid(:,1), grid(:,2), grid(:,3), 'b');
+plot3(grid(:,1), -grid(:,2), grid(:,3), 'b');
+
+% Wing outline (starboard)
+outline = [0 0 0; s*tan(Ale) s s*tan(phi); s*tan(Ale)+cTip s s*tan(phi); cRoot 0 0; 0 0 0];
+plot3(outline(:,1), outline(:,2), outline(:,3), 'k');
+plot3(outline(:,1), -outline(:,2), outline(:,3), 'k');
+
+
+xlim([-s+15 s+25])
+ylim([-s-5 s+5])
+zlim([-s-5 s+5])
+
 
 %% MAIN LOOP
 % ----------------------------------------------------------------------- %
