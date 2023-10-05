@@ -34,16 +34,16 @@ szp=100;  % scatter size plot
 
 %% Mesh Configuration
 % ----------------------------------------------------------------------- %
-npx = 3; % Number of panels in the streamwise direction
-npy = 4; % Number of panels in the SEMI-spanwise direction
+npx = 5; % Number of panels in the streamwise direction
+npy = 9; % Number of panels in the SEMI-spanwise direction
 numPanels = npx*npy;
 
 %% Flight Conditions
 % ----------------------------------------------------------------------- %
 
-alpha = 1*pi/180; % Angle of Attack (rad)
-Uinf  = 20;       % Wind Speed (m/s)
-rho   = 1.225;    % Air Density (kg/m3)
+alpha = 5*pi/180; % Angle of Attack (rad)
+Uinf  = 240;       % Wind Speed (m/s)
+rho   = 0.4135;    % Air Density (kg/m3)
 
 %% Wing Geometry
 % https://www.wikipedia.org/wiki/Boeing_747#747-400
@@ -64,11 +64,11 @@ AR  = 7.7;                      % Wing Aspect Ratio (-)
 % ----------------------------------------------------------------------- %
 grid = zeros(1,3); % initialize vector of grid points for plotting the wing
 
+% Width of one slice
+dy = s/npy;
+
 tic
 for j = 1:npy
-
-    % Width of one slice
-    dy = s/npy;
 
     % Local y coordinate of each slice (0 on inner edge)
     yA = dy .* (j-1);
@@ -117,13 +117,13 @@ figure(wingFig)
 mat = cell2mat(struct2cell(panels));
 
 % Vortex vertices and control points
-scatter3(mat(1,:), mat(2,:), mat(3,:), 'r', 'filled');
+scatter3(mat(1,:), mat(2,:), mat(3,:), 'r', 'filled', 'SizeData', 5);
 hold on
-scatter3(mat(1,:), -mat(2,:), mat(3,:), 'r', 'filled');
-scatter3(mat(4,:), mat(5,:), mat(6,:), 'r', 'filled');
-scatter3(mat(4,:), -mat(5,:), mat(6,:), 'r', 'filled');
-scatter3(mat(7,:), mat(8,:), mat(9,:), 'g', 'filled');
-scatter3(mat(7,:), -mat(8,:), mat(9,:), 'g', 'filled');
+scatter3(mat(1,:), -mat(2,:), mat(3,:), 'r', 'filled', 'SizeData', 5);
+scatter3(mat(4,:), mat(5,:), mat(6,:), 'r', 'filled', 'SizeData', 5);
+scatter3(mat(4,:), -mat(5,:), mat(6,:), 'r', 'filled', 'SizeData', 5);
+scatter3(mat(7,:), mat(8,:), mat(9,:), 'g', 'filled', 'SizeData', 5);
+scatter3(mat(7,:), -mat(8,:), mat(9,:), 'g', 'filled', 'SizeData', 5);
 
 % Panel grid
 plot3(grid(:,1), grid(:,2), grid(:,3), 'b');
@@ -266,9 +266,11 @@ colormap winter
 c.Location = 'southoutside';
 c.Label.String = 'Horseshoe vortex strength [m^2/s]';
 
-%% Lift Coefficient - WE ARE HERE
+%% Lift Coefficient
 
-CL  = 0;
+L = 2*rho*Uinf*dy*sum(gammas);
+
+CL  = L / (0.5*rho*Uinf*Uinf * S);
 
 %% Spanwise Lift Distribution
 % ----------------------------------------------------------------------- %
@@ -278,15 +280,15 @@ syms y
 
 for j = 0:10 % Solve only the Starboard wing due to symmetry  
 
-    % Local y coordinate of each slice    
-    % Local y coordinate in adimensional form    
+    % Local y coordinate of each slice
+    % Local y coordinate in adimensional form
     % Local chord at the coordinate y (linear chord function)
      
     % Columwise sumatory of CL_nth
           
     % Columwise Lift
     
-    % Columwise Lift Coefficient 
+    % Columwise Lift Coefficient
     
 end
 
