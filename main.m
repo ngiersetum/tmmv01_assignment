@@ -34,16 +34,16 @@ szp=100;  % scatter size plot
 
 %% Mesh Configuration
 % ----------------------------------------------------------------------- %
-npx = 10; % Number of panels in the streamwise direction
-npy = 20; % Number of panels in the SEMI-spanwise direction
+npx = 2; % Number of panels in the streamwise direction
+npy = 8; % Number of panels in the SEMI-spanwise direction
 numPanels = npx*npy;
 
 %% Flight Conditions
 % ----------------------------------------------------------------------- %
 
-alpha = 5*pi/180; % Angle of Attack (rad)
-Uinf  = 240;       % Wind Speed (m/s)
-rho   = 0.4135;    % Air Density (kg/m3)  % 10000m
+alpha = 12*pi/180; % Angle of Attack (rad)
+Uinf  = 100;       % Wind Speed (m/s)
+rho   = 1.0066;    % Air Density (kg/m3)  % 2000m
 
 %% Wing Geometry
 % https://www.wikipedia.org/wiki/Boeing_747#747-400
@@ -51,6 +51,7 @@ rho   = 0.4135;    % Air Density (kg/m3)  % 10000m
 sweep = 37;
 dihedral = 12;
 
+for dihedral=0:15
 Ale = deg2rad(sweep);              % Leading edge sweep angle (rad)
 phi = deg2rad(dihedral) + (1e-10);    % Dihedral angle (rad)
 
@@ -60,7 +61,7 @@ tr = 0.2493;
 
 % cRoot = sqrt((3*S)/(AR*(1+tr+tr*tr)));
 % cTip = tr * cRoot;
-% s = S/(cRoot+cTip)
+% s = S/(cRoot+cTip);
 
 s   = 32;                       % SEMI-span (m)
 cRoot  = 14.84;                 % Root chord (m)
@@ -71,7 +72,7 @@ cTip  = 3.70 + (1e-10);         % Tip chord (m)
 
 %% Panels´ Geometrical Properties
 % ----------------------------------------------------------------------- %
-grid = zeros(1,3); % initialize vector of grid points for plotting the wing
+wingGrid = zeros(1,3); % initialize vector of grid points for plotting the wing
 
 % Width of one slice
 dy = s/npy;
@@ -111,7 +112,7 @@ for j = 1:npy
         panels(i,j).zmn = (yA+(dy/2))*tan(phi);
 
         % Save points for plotting the wing grid
-        grid = [grid; yA*tan(Ale) + dxA*(i-1), yA, yA*tan(phi); 
+        wingGrid = [wingGrid; yA*tan(Ale) + dxA*(i-1), yA, yA*tan(phi); 
             (yA+dy)*tan(Ale) + dxB*(i-1), yA+dy, (yA+dy)*tan(phi); 
             (yA+dy)*tan(Ale) + dxB*i, yA+dy, (yA+dy)*tan(phi); 
             yA*tan(Ale) + dxA*i, yA, yA*tan(phi); 
@@ -137,8 +138,8 @@ scatter3(mat(7,:), mat(8,:), mat(9,:), 'g', 'filled', 'SizeData', 5);
 scatter3(mat(7,:), -mat(8,:), mat(9,:), 'g', 'filled', 'SizeData', 5);
 
 % Panel grid
-plot3(grid(:,1), grid(:,2), grid(:,3), 'b');
-plot3(grid(:,1), -grid(:,2), grid(:,3), 'b');
+plot3(wingGrid(:,1), wingGrid(:,2), wingGrid(:,3), 'b');
+plot3(wingGrid(:,1), -wingGrid(:,2), wingGrid(:,3), 'b');
 
 % Wing outline (starboard)
 outline = [0 0 0; s*tan(Ale) s s*tan(phi); s*tan(Ale)+cTip s s*tan(phi); cRoot 0 0; 0 0 0];
@@ -148,6 +149,8 @@ plot3(outline(:,1), -outline(:,2), outline(:,3), 'k');
 xlim([-s+15 s+25])
 ylim([-s-5 s+5])
 zlim([-s-5 s+5])
+
+% view(90, 90)
 
 
 %% MAIN LOOP
@@ -269,8 +272,8 @@ for i = 1:npx
 
        % Plot vortex strength on the wing surface
        gi = npx*(j-1) + i;
-       fill3(grid((2+(gi-1)*5):(5+(gi-1)*5),1), grid((2+(gi-1)*5):(5+(gi-1)*5),2), grid((2+(gi-1)*5):(5+(gi-1)*5),3), strengths(i,j));
-       fill3(grid((2+(gi-1)*5):(5+(gi-1)*5),1), -grid((2+(gi-1)*5):(5+(gi-1)*5),2), grid((2+(gi-1)*5):(5+(gi-1)*5),3), strengths(i,j));
+       fill3(wingGrid((2+(gi-1)*5):(5+(gi-1)*5),1), wingGrid((2+(gi-1)*5):(5+(gi-1)*5),2), wingGrid((2+(gi-1)*5):(5+(gi-1)*5),3), strengths(i,j));
+       fill3(wingGrid((2+(gi-1)*5):(5+(gi-1)*5),1), -wingGrid((2+(gi-1)*5):(5+(gi-1)*5),2), wingGrid((2+(gi-1)*5):(5+(gi-1)*5),3), strengths(i,j));
     end
 end
 
@@ -282,11 +285,24 @@ c.Label.String = 'Horseshoe vortex strength [m^2/s]';
 
 %% Lift Coefficient
 
-L = 2*rho*Uinf*dy*sum(gammas);
+L = 2*rho*Uinf*dy*sum(gammas)
 
-CL  = L / (0.5*rho*Uinf*Uinf * S);
+CL(dihedral+1)  = L / (0.5*rho*Uinf*Uinf * S);
 
-% end
+end
+
+%% Plot Results
+
+figure(distFig)
+hold on
+grid on
+plot(0:15, CL, 'r', 'LineWidth', 1);
+scatter(0:15, CL, 'r^', 'LineWidth', 1);
+title('Lift Coefficient Evolution with Dihedral');
+% legend('C_L')
+xlabel('Dihedral [°]')
+ylabel('C_L [-]', 'Rotation', 0)
+
 
 %% Spanwise Lift Distribution
 % ----------------------------------------------------------------------- %
@@ -300,22 +316,31 @@ for j = 1:npy % Solve only the Starboard wing due to symmetry
 
     % Local chord at the coordinate y (linear chord function)
     chord = chordlengths(j);
-    
+
     % Columwise sumatory of strengths
     strength_span = sum(strengths,1);
     % Columwise Lift
     L_span = rho*Uinf*dy*strength_span;
-    
+
     % Columwise Lift Coefficient
     CL_span = L_span / (0.5*rho*Uinf*Uinf * S);
 
 %     % Normalized values
 %     cl_norm = CL_span .* chordlengths;
-    
+
 end
 
 
-figure(distFig)
-plot(dy*(1:npy), L_span, 'r');
-
+% figure(distFig)
+% hold on
+% grid on
+% plot(dy*(1:npy), CL_span, 'r', 'LineWidth', 1);
+% plot(-dy*(1:npy), CL_span, 'r', 'LineWidth', 1);
+% scatter(dy*(1:npy), CL_span, 'r^', 'LineWidth', 1.5)
+% scatter(-dy*(1:npy), CL_span, 'r^', 'LineWidth', 1.5)
+% ylim([0 0.06])
+% 
+% title('Spanwise lift distribution');
+% xlabel('y-axis [m]')
+% ylabel('C_L [-]', 'Rotation', 0)
 
