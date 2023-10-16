@@ -8,7 +8,7 @@
 % Group members:
 %   Jan Zoellner (janzo813)
 %   Niklas Gierse (nikgi434)
-%
+% 
 % Chosen assignment:
 %   B747 - 12 deg dihedral
 % 
@@ -23,7 +23,7 @@ close all
 scrsz = get(0,'ScreenSize');
 scW=scrsz(3); % Screen Width (px)
 scH=scrsz(4); % Screen Height (px)
-% figure('Name','NameFigure','Position',[x0 y0 width height])
+
 wingFig = figure('Name','Wing','Position',[1 scH/4 scW/2 scH/1.75]);
 distFig = figure('Name','Distributions','Position',[scW/2 scH/4 scW/2 scH/1.75]);
 
@@ -51,7 +51,7 @@ rho   = 1.0066;    % Air Density (kg/m3)  % 2000m
 sweep = 37;
 dihedral = 12;
 
-for dihedral=0:15
+% for dihedral=0:15
 Ale = deg2rad(sweep);              % Leading edge sweep angle (rad)
 phi = deg2rad(dihedral) + (1e-10);    % Dihedral angle (rad)
 
@@ -70,7 +70,7 @@ cTip  = 3.70 + (1e-10);         % Tip chord (m)
 % IMPORTANT: (1e-10) added at Dihedral Angle and Tip Chord in order to
 % avoid numerical issues.
 
-%% Panels´ Geometrical Properties
+%% Panels' Geometrical Properties
 % ----------------------------------------------------------------------- %
 wingGrid = zeros(1,3); % initialize vector of grid points for plotting the wing
 
@@ -277,31 +277,35 @@ for i = 1:npx
     end
 end
 
+%% Lift Coefficient
+
+L = 2*rho*Uinf*dy*sum(gammas)
+
+% CL(dihedral+1)  = L / (0.5*rho*Uinf*Uinf * S);
+CL = L / (0.5*rho*Uinf*Uinf * S)
+
+% warea(dihedral+1) = (s/cos(phi)) * (cTip+cRoot);
+
+% end
+
 % Colorbar for the vortex strengths on the wing
 c = colorbar;
 colormap winter
 c.Location = 'southoutside';
 c.Label.String = 'Horseshoe vortex strength [m^2/s]';
 
-%% Lift Coefficient
-
-L = 2*rho*Uinf*dy*sum(gammas)
-
-CL(dihedral+1)  = L / (0.5*rho*Uinf*Uinf * S);
-
-end
-
-%% Plot Results
-
-figure(distFig)
-hold on
-grid on
-plot(0:15, CL, 'r', 'LineWidth', 1);
-scatter(0:15, CL, 'r^', 'LineWidth', 1);
-title('Lift Coefficient Evolution with Dihedral');
-% legend('C_L')
-xlabel('Dihedral [°]')
-ylabel('C_L [-]', 'Rotation', 0)
+% %% Plot Parameter Iteration Results
+% 
+% figure(distFig)
+% hold on
+% grid on
+% plot(0:15, CL ./CL(1), 'r', 'LineWidth', 1);
+% scatter(0:15, CL ./CL(1), 'r^', 'LineWidth', 1);
+% scatter(0:15, warea ./warea(1), 'b^', 'LineWidth', 1);
+% title('Lift Coefficient Evolution with Dihedral');
+% % legend('C_L')
+% xlabel('Dihedral [°]')
+% ylabel('C_L [-]', 'Rotation', 0)
 
 
 %% Spanwise Lift Distribution
@@ -325,22 +329,20 @@ for j = 1:npy % Solve only the Starboard wing due to symmetry
     % Columwise Lift Coefficient
     CL_span = L_span / (0.5*rho*Uinf*Uinf * S);
 
-%     % Normalized values
-%     cl_norm = CL_span .* chordlengths;
-
 end
 
 
-% figure(distFig)
-% hold on
-% grid on
-% plot(dy*(1:npy), CL_span, 'r', 'LineWidth', 1);
-% plot(-dy*(1:npy), CL_span, 'r', 'LineWidth', 1);
-% scatter(dy*(1:npy), CL_span, 'r^', 'LineWidth', 1.5)
-% scatter(-dy*(1:npy), CL_span, 'r^', 'LineWidth', 1.5)
-% ylim([0 0.06])
-% 
-% title('Spanwise lift distribution');
-% xlabel('y-axis [m]')
-% ylabel('C_L [-]', 'Rotation', 0)
+figure(distFig)
+hold on
+grid on
+plot(dy*(1:npy), CL_span, 'r', 'LineWidth', 1)
+plot(-dy*(1:npy), CL_span, 'r', 'LineWidth', 1)
+plot([dy -dy], [CL_span(1) CL_span(1)], 'r', 'LineWidth', 1)
+scatter(dy*(1:npy), CL_span, 'r^', 'LineWidth', 1.5)
+scatter(-dy*(1:npy), CL_span, 'r^', 'LineWidth', 1.5)
+ylim([0 0.06])
+
+title('Spanwise lift distribution');
+xlabel('y-axis [m]')
+ylabel('C_L [-]', 'Rotation', 0)
 
