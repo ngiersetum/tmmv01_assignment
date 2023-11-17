@@ -41,7 +41,7 @@ numPanels = npx*npy;
 %% Flight Conditions
 % ----------------------------------------------------------------------- %
 
-alpha = 12*pi/180; % Angle of Attack (rad)
+alpha = 13*pi/180; % Angle of Attack (rad)
 Uinf  = 100;       % Wind Speed (m/s)
 rho   = 1.0066;    % Air Density (kg/m3)  % 2000m
 
@@ -244,7 +244,7 @@ normalV = ones(size(Vm));
 normalW = ones(size(Wm));
 
 normalU = normalU .* 0;
-normalV = normalV .* sin(phi);
+normalV = normalV .* -sin(phi);   % FIXED: a minus was missing here
 normalW = normalW .* cos(phi);
 
 K = dot([Um; Vm; Wm], [normalU; normalV; normalW]);
@@ -281,7 +281,7 @@ end
 
 L = 2*rho*Uinf*dy*sum(gammas)
 
-% CL(dihedral+1)  = L / (0.5*rho*Uinf*Uinf * S);
+% CL(dihedral+1)  = L(dihedral+1) / (0.5*rho*Uinf*Uinf * S);
 CL = L / (0.5*rho*Uinf*Uinf * S)
 
 % warea(dihedral+1) = (s/cos(phi)) * (cTip+cRoot);
@@ -299,9 +299,9 @@ c.Label.String = 'Horseshoe vortex strength [m^2/s]';
 % figure(distFig)
 % hold on
 % grid on
-% plot(0:15, CL ./CL(1), 'r', 'LineWidth', 1);
-% scatter(0:15, CL ./CL(1), 'r^', 'LineWidth', 1);
-% scatter(0:15, warea ./warea(1), 'b^', 'LineWidth', 1);
+% plot(0:15, CL, 'r', 'LineWidth', 1);
+% scatter(0:15, CL, 'r^', 'LineWidth', 1);
+% % scatter(0:15, warea ./warea(1), 'b^', 'LineWidth', 1);
 % title('Lift Coefficient Evolution with Dihedral');
 % % legend('C_L')
 % xlabel('Dihedral [°]')
